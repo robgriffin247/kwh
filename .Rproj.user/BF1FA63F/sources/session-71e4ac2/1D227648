@@ -1,0 +1,27 @@
+{
+    "id": "1D227648",
+    "path": "~/github/personal/kwh/dim_air_temperature.R",
+    "project_path": "dim_air_temperature.R",
+    "type": "r_source",
+    "hash": "0",
+    "contents": "",
+    "dirty": false,
+    "created": 1701324002954.0,
+    "source_on_save": false,
+    "relative_order": 3,
+    "properties": {
+        "tempName": "Untitled1",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "12,0",
+        "scrollLine": "0"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1701325678,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1701325678522,
+    "read_only": false,
+    "read_only_alternatives": []
+}

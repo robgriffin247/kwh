@@ -1,0 +1,36 @@
+library(data.table)
+library(ggplot2)
+
+rm(list=ls())
+
+
+# Read in data
+source('dim_kwh.R')
+source('dim_air_temperature.R')
+
+
+# Get daily averages for Vänersborg
+dim_average_air_temperature <- 
+  dim_air_temperature[, .('average_air_temperature'=mean(air_temperature)), by=date]
+
+
+# Merge kwh and air temp data
+dim_joint <- dim_average_air_temperature[dim_kwh, on='date']
+
+
+# Add Season (Winter = Nov 1st to March 31st)
+dim_joint[, season:=ifelse(quarter(date)==1, paste('Winter', year(date)-1), 
+                           ifelse(quarter(date)==4, paste('Winter', year(date)),
+                                  paste('Summer', year(date))))]
+
+
+# Plot kwh ~ air temperature
+dim_joint[!is.na(vf_temperature) & grepl('Winter', season) & vf_temperature<=10,
+          ggplot(.SD, aes(x=vf_temperature, y=kwh, colour=season)) + 
+            geom_point() +
+            geom_smooth(se=FALSE, method='lm') +
+            theme_classic() +
+            labs(x='Air temperature (daily average, C)',
+                 y='Electricity consumed (kWh)',
+                 colour='Year')]
+
