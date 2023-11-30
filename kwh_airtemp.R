@@ -25,12 +25,14 @@ dim_joint[, season:=ifelse(quarter(date)==1, paste('Winter', year(date)-1),
 
 
 # Plot kwh ~ air temperature
-dim_joint[!is.na(vf_temperature) & grepl('Winter', season) & vf_temperature<=10,
-          ggplot(.SD, aes(x=vf_temperature, y=kwh, colour=season)) + 
-            geom_point() +
-            geom_smooth(se=FALSE, method='lm') +
-            theme_classic() +
-            labs(x='Air temperature (daily average, C)',
-                 y='Electricity consumed (kWh)',
-                 colour='Year')]
+air_temperature_kwh_season <- 
+  dim_joint[!is.na(vf_temperature) & grepl('Winter', season) & vf_temperature<=10,
+            ggplot(.SD, aes(x=vf_temperature, y=kwh, colour=season)) + 
+              geom_point(shape=16, alpha=0.6) +
+              geom_smooth(se=FALSE, method='lm') +
+              theme_classic() +
+              labs(x='Air temperature (daily average, C)',
+                   y='Electricity consumed (kWh)',
+                   colour='Year')]
 
+ggsave('figures/air_temperature_kwh_season.jpg', air_temperature_kwh_season)
