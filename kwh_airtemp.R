@@ -35,4 +35,4 @@ air_temperature_kwh_season <-
                    y='Electricity consumed (kWh)',
                    colour='Year')]
 
-ggsave('figures/air_temperature_kwh_season.jpg', air_temperature_kwh_season)
+ggsave('figures/air_temperature_kwh_season.jpg', air_temperature_kwh_season, width=8, height=6)
