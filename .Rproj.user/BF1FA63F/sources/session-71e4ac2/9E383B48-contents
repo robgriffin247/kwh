@@ -33,6 +33,59 @@ air_temperature_kwh_season <-
               theme_classic() +
               labs(x='Air temperature (daily average, C)',
                    y='Electricity consumed (kWh)',
-                   colour='Year')]
+                   colour='Year') +
+              xlim(c(-12,10)) +
+              ylim(c(0,120))]
 
 ggsave('figures/air_temperature_kwh_season.jpg', air_temperature_kwh_season)
+
+
+################################################################################
+
+# Total electricity consumption per winter:
+# surprisingly, we consumed more electricity in the winter of 2022 than 2021
+dim_joint[date<"2023-04-01" & grepl('Winter', season), .('kwh'=sum(kwh)), by=season]
+
+# ... Because there is missing data in Winter 2021
+dim_joint[grepl('Winter', season), .N, by=season]
+# ... Daily average more appropriate
+dim_joint[grepl('Winter', season), .('kwh'=mean(kwh)), by=season]
+# ... But winters differ; 2023 is missing December 2023 onwards, 2021 had fewer cold days
+# - mean
+dim_joint[grepl('Winter', season), .('vf_temperature'=mean(vf_temperature)), by=season]
+# - number of below zero days
+dim_joint[grepl('Winter', season) & vf_temperature<0, .('days_under_0'=.N), by=season]
+
+
+# Model expected consumption based on Winter 2022 temperatures
+model1 <- dim_joint[, lm(kwh~vf_temperature*season)]
+
+predicted <- rbindlist(lapply(2021:2023, function(year){
+  data.table('season'=dim_joint[season=='Winter 2022', paste('Winter', year)],
+             'vf_temperature'=dim_joint[season=='Winter 2022', vf_temperature],
+             'kwh'=predict(model1,
+                           newdata=dim_joint[season=='Winter 2022', 
+                                             .('season'=rep(paste('Winter', year), .N), vf_temperature)]))
+}))
+
+# Means based on expected consumption if every winter was exactly like Winter 2022
+predicted[grepl('Winter', season), .('kwh'=mean(kwh)), by=season]
+
+# compare to:
+dim_joint[grepl('Winter', season), .('kwh'=mean(kwh)), by=season]
+
+
+
+# Plot the predicted relationship
+air_temperature_kwh_season_predicted <- 
+  predicted[!is.na(vf_temperature) & grepl('Winter', season) & vf_temperature<=10,
+            ggplot(.SD, aes(x=vf_temperature, y=kwh, colour=season)) + 
+              geom_smooth(se=FALSE, method='lm') +
+              theme_classic() +
+              labs(x='Air temperature (daily average, C)',
+                   y='Expected electricity consumption (kWh)',
+                   colour='Year') +
+              xlim(c(-12,10)) +
+              ylim(c(0,120))]
+
+ggsave('figures/air_temperature_kwh_season_predicted.jpg', air_temperature_kwh_season_predicted)
